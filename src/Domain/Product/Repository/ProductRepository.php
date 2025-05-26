@@ -2,10 +2,11 @@
 
 declare(strict_types = 1);
 
-namespace Raketa\BackendTestTask\Repository;
+namespace Raketa\BackendTestTask\Domain\Product\Repository;
 
 use Doctrine\DBAL\Connection;
-use Raketa\BackendTestTask\Repository\Entity\Product;
+use Raketa\BackendTestTask\Domain\Product\Model\Product;
+use Raketa\BackendTestTask\Repository\Exception;
 
 class ProductRepository
 {

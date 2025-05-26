@@ -2,17 +2,17 @@
 
 declare(strict_types = 1);
 
-namespace Raketa\BackendTestTask\Controller;
+namespace Raketa\BackendTestTask\Http\Controller;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Raketa\BackendTestTask\Repository\CartManager;
-use Raketa\BackendTestTask\View\CartView;
+use Raketa\BackendTestTask\Domain\Cart\CartManager;
+use Raketa\BackendTestTask\Resource\CartResource;
 
 readonly class GetCartController
 {
     public function __construct(
-        public CartView $cartView,
+        public CartResource $cartView,
         public CartManager $cartManager
     ) {
     }

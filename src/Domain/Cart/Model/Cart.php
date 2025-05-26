@@ -2,7 +2,9 @@
 
 declare(strict_types = 1);
 
-namespace Raketa\BackendTestTask\Domain;
+namespace Raketa\BackendTestTask\Domain\Cart\Model;
+
+use Raketa\BackendTestTask\Domain\Customer\Customer;
 
 final class Cart
 {

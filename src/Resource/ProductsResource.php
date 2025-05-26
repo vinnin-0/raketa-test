@@ -1,11 +1,11 @@
 <?php
 
-namespace Raketa\BackendTestTask\View;
+namespace Raketa\BackendTestTask\Resource;
 
-use Raketa\BackendTestTask\Repository\Entity\Product;
-use Raketa\BackendTestTask\Repository\ProductRepository;
+use Raketa\BackendTestTask\Domain\Product\Model\Product;
+use Raketa\BackendTestTask\Domain\Product\Repository\ProductRepository;
 
-readonly class ProductsView
+readonly class ProductsResource
 {
     public function __construct(
         private ProductRepository $productRepository

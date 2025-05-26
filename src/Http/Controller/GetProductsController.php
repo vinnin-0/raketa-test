@@ -2,16 +2,16 @@
 
 declare(strict_types = 1);
 
-namespace Raketa\BackendTestTask\Controller;
+namespace Raketa\BackendTestTask\Http\Controller;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Raketa\BackendTestTask\View\ProductsView;
+use Raketa\BackendTestTask\Resource\ProductsResource;
 
 readonly class GetProductsController
 {
     public function __construct(
-        private ProductsView $productsVew
+        private ProductsResource $productsVew
     ) {
     }
 

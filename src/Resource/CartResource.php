@@ -2,12 +2,12 @@
 
 declare(strict_types = 1);
 
-namespace Raketa\BackendTestTask\View;
+namespace Raketa\BackendTestTask\Resource;
 
-use Raketa\BackendTestTask\Domain\Cart;
-use Raketa\BackendTestTask\Repository\ProductRepository;
+use Raketa\BackendTestTask\Domain\Cart\Model\Cart;
+use Raketa\BackendTestTask\Domain\Product\Repository\ProductRepository;
 
-readonly class CartView
+readonly class CartResource
 {
     public function __construct(
         private ProductRepository $productRepository
