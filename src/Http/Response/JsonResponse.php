@@ -1,18 +1,54 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
-namespace Raketa\BackendTestTask\Http\Controller;
+namespace Raketa\BackendTestTask\Http\Response;
 
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Raketa\BackendTestTask\Http\Resource\ResourceInterface;
 
 /**
  * Класс заглушка
  */
-final class JsonResponse implements ResponseInterface
+class JsonResponse implements ResponseInterface
 {
+    public const DEFAULT_HEADERS = [
+        'Content-Type' => 'application/json; charset=utf-8', 'Accept' => 'application/json'
+    ];
+
+    private array $body;
+    private array $headers;
+    private int $statusCode;
+
+    public function __construct(
+        int $statusCode = 200,
+        array|ResourceInterface $body = [],
+        array $headers = [],
+    ) {
+        $this->statusCode = $statusCode;
+        $this->headers = array_merge(self::DEFAULT_HEADERS, $headers);
+        if ($body instanceof ResourceInterface) {
+            $this->body = $body->toArray();
+        } else {
+            $this->body = $body;
+        }
+    }
+
+    /**
+     * @throws \JsonException
+     */
+    protected function prepare()
+    {
+        $body = json_encode($this->body, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        foreach ($this->headers as $header => $value) {
+            $this->withHeader($header, $value);
+        }
+        $this->getBody()->write($body);
+        $this->withStatus($this->statusCode);
+    }
+
     public function getProtocolVersion(): string
     {
         // TODO: Implement getProtocolVersion() method.

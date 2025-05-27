@@ -1,49 +1,94 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Raketa\BackendTestTask\Domain\Product\Repository;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Raketa\BackendTestTask\Domain\Product\Model\Product;
-use Raketa\BackendTestTask\Repository\Exception;
+use Raketa\BackendTestTask\Infrastructure\Exception\NotFoundException;
+use RuntimeException;
 
+/**
+ *
+ */
 class ProductRepository
 {
+    /**
+     * @var Connection
+     */
     private Connection $connection;
 
+    /**
+     * @param  Connection  $connection
+     */
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
     }
 
-    public function getByUuid(string $uuid): Product
+    /**
+     * @param  string  $uuid
+     * @return array<Product>
+     * @throws NotFoundException
+     * @throws RuntimeException
+     */
+    public function getByUuid(string|array $uuid): array
     {
-        $row = $this->connection->fetchOne(
-            "SELECT * FROM products WHERE uuid = " . $uuid,
-        );
-
-        if (empty($row)) {
-            throw new Exception('Product not found');
+        try {
+            $rows = $this->connection->fetchAllAssociative(
+                'SELECT * FROM products WHERE uuid in (?)',
+                [[$uuid]]
+            );
+        } catch (Exception $e) {
+            throw new RuntimeException('Failed to fetch products by uuid', 500, $e);
         }
 
-        return $this->make($row);
-    }
+        if (!$rows) {
+            throw new NotFoundException(sprintf('Product with uuid %s not found', $uuid));
+        }
 
-    public function getByCategory(string $category): array
-    {
         return array_map(
-            static fn (array $row): Product => $this->make($row),
-            $this->connection->fetchAllAssociative(
-                "SELECT id FROM products WHERE is_active = 1 AND category = " . $category,
-            )
+            fn(array $row): Product => $this->make($row),
+            $rows
         );
     }
 
+    /**
+     * @param  string  $category
+     * @return array<Product>
+     * @throws NotFoundException
+     * @throws RuntimeException
+     */
+    public function getByCategory(string $category): array
+    {
+        try {
+            $rows = $this->connection->fetchAllAssociative(
+                'SELECT * FROM products WHERE is_active = ? AND category = ?',
+                [1, $category]
+            );
+        } catch (Exception $e) {
+            throw new RuntimeException('Failed to fetch products by category', 500, $e);
+        }
+
+        if (empty($rows)) {
+            throw new NotFoundException(sprintf('Product with category %s not found', $category));
+        }
+
+        return array_map(
+            fn(array $row): Product => $this->make($row),
+            $rows
+        );
+    }
+
+    /**
+     * @param  array  $row
+     * @return Product
+     */
     public function make(array $row): Product
     {
         return new Product(
-            $row['id'],
             $row['uuid'],
             $row['is_active'],
             $row['category'],

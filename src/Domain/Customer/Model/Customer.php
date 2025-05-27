@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Raketa\BackendTestTask\Domain\Customer;
+namespace Raketa\BackendTestTask\Domain\Customer\Model;
 
 final readonly class Customer
 {

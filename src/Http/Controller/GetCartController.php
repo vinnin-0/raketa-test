@@ -1,49 +1,34 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Raketa\BackendTestTask\Http\Controller;
 
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Raketa\BackendTestTask\Domain\Cart\CartManager;
-use Raketa\BackendTestTask\Resource\CartResource;
+use Raketa\BackendTestTask\Domain\Product\Repository\ProductRepository;
+use Raketa\BackendTestTask\Http\Resource\CartResource;
+use Raketa\BackendTestTask\Http\Response\JsonResponse;
+use Throwable;
 
 readonly class GetCartController
 {
     public function __construct(
-        public CartResource $cartView,
-        public CartManager $cartManager
+        private CartManager $cartManager,
+        private LoggerInterface $logger,
+        private ProductRepository $productRepository,
     ) {
     }
 
-    public function get(RequestInterface $request): ResponseInterface
+    public function __invoke(): JsonResponse
     {
-        $response = new JsonResponse();
-        $cart = $this->cartManager->getCart();
-
-        if (! $cart) {
-            $response->getBody()->write(
-                json_encode(
-                    ['message' => 'Cart not found'],
-                    JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
-                )
-            );
-
-            return $response
-                ->withHeader('Content-Type', 'application/json; charset=utf-8')
-                ->withStatus(404);
-        } else {
-            $response->getBody()->write(
-                json_encode(
-                    $this->cartView->toArray($cart),
-                    JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
-                )
-            );
+        try {
+            $cart = $this->cartManager->getCart();
+        } catch (Throwable $e) {
+            $this->logger->error($e->getMessage(), $e->getTrace());
+            return new JsonResponse($e->getCode(), ['message' => $e->getMessage()]);
         }
 
-        return $response
-            ->withHeader('Content-Type', 'application/json; charset=utf-8')
-            ->withStatus(404);
+        return new JsonResponse(200, new CartResource($this->productRepository, $cart));
     }
 }
